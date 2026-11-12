@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Telemetria Climática', ~{::section})}">
+<body>
+<section>
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">Telemetria dos Sensores Climáticos</h2>
+            <p class="text-muted mb-0">Histórico de medições de temperatura, umidade relativa do ar e sensação térmica.</p>
+        </div>
+        <a th:href="@{/telemetria/nova}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Registrar Leitura
+        </a>
+    </div>
+
+    <!-- Filtro por Ponto de Apoio -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/telemetria}" method="get" class="row g-2 align-items-center">
+                <div class="col-md-7 col-lg-5">
+                    <select name="pontoId" class="form-select">
+                        <option value="">Todos os pontos de apoio...</option>
+                        <option th:each="p : ${pontosApoio}"
+                                th:value="${p.id}"
+                                th:text="${p.nome + ' (' + p.bairro + ')'}"
+                                th:selected="${pontoFiltroId != null and pontoFiltroId == p.id}">
+                            Ponto de Apoio
+                        </option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+                    <a th:if="${pontoFiltroId != null}" th:href="@{/telemetria}" class="btn btn-outline-secondary ms-1">Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Leituras -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(leituras)}" class="p-5 text-center text-muted">
+                <i class="bi bi-activity fs-1 d-block mb-2"></i>
+                Nenhuma leitura climática registrada para o filtro selecionado.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(leituras)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Data / Hora</th>
+                        <th>Ponto de Apoio</th>
+                        <th class="text-center">Temperatura</th>
+                        <th class="text-center">Umidade</th>
+                        <th class="text-center">Sensação Térmica</th>
+                        <th class="text-center">Condição</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="l : ${leituras}">
+                        <td class="small text-muted"
+                            th:text="${#temporals.format(l.dataHoraRegistro, 'dd/MM/yyyy HH:mm')}">12/11/2026 14:30</td>
+                        <td class="fw-semibold" th:text="${l.pontoApoioNome}">UBS Central</td>
+                        <td class="text-center">
+                            <span class="badge"
+                                  th:classappend="${l.temperatura >= 38.0 ? 'bg-danger' : (l.temperatura >= 35.0 ? 'bg-warning text-dark' : 'bg-success')}"
+                                  th:text="${#numbers.formatDecimal(l.temperatura, 1, 1)} + ' °C'">31.5 °C</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge"
+                                  th:classappend="${l.umidade <= 15.0 ? 'bg-danger' : (l.umidade <= 20.0 ? 'bg-warning text-dark' : 'bg-info text-dark')}"
+                                  th:text="${#numbers.formatDecimal(l.umidade, 1, 0)} + '%'">45%</span>
+                        </td>
+                        <td class="text-center fw-semibold"
+                            th:text="${l.sensacaoTermica != null ? #numbers.formatDecimal(l.sensacaoTermica, 1, 1) + ' °C' : '-'}">32.0 °C</td>
+                        <td class="text-center">
+                            <span th:if="${l.temperatura >= 38.0 or l.umidade <= 15.0}" class="text-danger small fw-bold">
+                                <i class="bi bi-exclamation-octagon-fill me-1"></i>Crítico
+                            </span>
+                            <span th:if="${(l.temperatura >= 35.0 and l.temperatura < 38.0) or (l.umidade > 15.0 and l.umidade <= 20.0)}"
+                                  class="text-warning small fw-bold">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Risco Alto
+                            </span>
+                            <span th:if="${l.temperatura < 35.0 and l.umidade > 20.0}" class="text-success small fw-semibold">
+                                <i class="bi bi-check-circle-fill me-1"></i>Normal
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/telemetria/excluir/{id}(id=${l.id})}"
+                               class="btn btn-sm btn-outline-danger" title="Excluir registro"
+                               onclick="return confirm('Deseja realmente excluir este registro de telemetria?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

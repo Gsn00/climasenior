@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${alerta.id == null ? 'Emitir Alerta Climático' : 'Editar Alerta Climático'}, ~{::section})}">
+<body>
+<section>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="fw-bold mb-0"
+                    th:text="${alerta.id == null ? 'Emitir Alerta Climático' : 'Editar Alerta Climático'}">
+                    Emitir Alerta Climático
+                </h2>
+                <a th:href="@{/alertas}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-4">
+                    <form th:action="@{/alertas/salvar}" th:object="${alerta}" method="post">
+                        <input type="hidden" th:field="*{id}">
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="titulo" class="form-label fw-semibold">Título do Alerta *</label>
+                                <input type="text" id="titulo" th:field="*{titulo}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('titulo')} ? 'is-invalid'"
+                                       placeholder="Ex: Onda de Calor Intensa na Região Central">
+                                <div class="invalid-feedback" th:errors="*{titulo}">Erro no título</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="nivel" class="form-label fw-semibold">Nível de Severidade *</label>
+                                <select id="nivel" th:field="*{nivel}" class="form-select"
+                                        th:classappend="${#fields.hasErrors('nivel')} ? 'is-invalid'">
+                                    <option value="">Selecione...</option>
+                                    <option th:each="n : ${niveisAlerta}"
+                                            th:value="${n}"
+                                            th:text="${n.descricao}">Nível</option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{nivel}">Erro no nível</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="bairroAfetado" class="form-label fw-semibold">Bairro Afetado *</label>
+                                <input type="text" id="bairroAfetado" th:field="*{bairroAfetado}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('bairroAfetado')} ? 'is-invalid'"
+                                       placeholder="Ex: Centro">
+                                <div class="invalid-feedback" th:errors="*{bairroAfetado}">Erro no bairro</div>
+                            </div>
+
+                            <div class="col-md-4" th:if="${alerta.id != null}">
+                                <label for="status" class="form-label fw-semibold">Status do Alerta</label>
+                                <select id="status" th:field="*{status}" class="form-select">
+                                    <option th:each="s : ${statusAlerta}"
+                                            th:value="${s}"
+                                            th:text="${s.descricao}">Status</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="pontoApoioReferenciaId" class="form-label fw-semibold">Ponto de Apoio de Referência (Opcional)</label>
+                                <select id="pontoApoioReferenciaId" th:field="*{pontoApoioReferenciaId}" class="form-select">
+                                    <option value="">Nenhum ponto específico vinculado</option>
+                                    <option th:each="p : ${pontosApoio}"
+                                            th:value="${p.id}"
+                                            th:text="${p.nome + ' (' + p.bairro + ' - ' + p.endereco + ')'}">
+                                        Ponto de Apoio
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="descricao" class="form-label fw-semibold">Orientações e Descrição Detalhada *</label>
+                                <textarea id="descricao" th:field="*{descricao}" class="form-control" rows="4"
+                                          th:classappend="${#fields.hasErrors('descricao')} ? 'is-invalid'"
+                                          placeholder="Descreva os riscos identificados e as recomendações preventivas para os idosos e cuidadores..."></textarea>
+                                <div class="invalid-feedback" th:errors="*{descricao}">Erro na descrição</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a th:href="@{/alertas}" class="btn btn-light">Cancelar</a>
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-megaphone me-1"></i>
+                                <span th:text="${alerta.id == null ? 'Emitir Alerta' : 'Salvar Alterações'}">Emitir Alerta</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

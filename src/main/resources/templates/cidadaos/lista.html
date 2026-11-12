@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Cidadãos Cadastrados', ~{::section})}">
+<body>
+<section>
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">Cidadãos Monitorados</h2>
+            <p class="text-muted mb-0">Cadastro de pessoas idosas e grupos vulneráveis para acompanhamento preventivo.</p>
+        </div>
+        <a th:href="@{/cidadaos/novo}" class="btn btn-primary">
+            <i class="bi bi-person-plus-fill me-1"></i> Novo Cidadão
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/cidadaos}" method="get" class="row g-2 align-items-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="bairro" class="form-control"
+                               placeholder="Filtrar por bairro..."
+                               th:value="${bairroFiltro}">
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+                    <a th:href="@{/cidadaos(mobilidadeReduzida=true)}"
+                       class="btn ms-1"
+                       th:classappend="${filtroMobilidade} ? 'btn-warning' : 'btn-outline-warning'">
+                        <i class="bi bi-person-wheelchair me-1"></i> Mobilidade Reduzida
+                    </a>
+                    <a th:if="${bairroFiltro != null or filtroMobilidade != null}"
+                       th:href="@{/cidadaos}"
+                       class="btn btn-outline-secondary ms-1">Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Cidadãos -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(cidadaos)}" class="p-5 text-center text-muted">
+                <i class="bi bi-people fs-1 d-block mb-2"></i>
+                Nenhum cidadão encontrado com os filtros selecionados.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(cidadaos)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Nome Completo</th>
+                        <th>CPF</th>
+                        <th>Nascimento</th>
+                        <th>Telefone</th>
+                        <th>Bairro</th>
+                        <th class="text-center">Mobilidade</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${cidadaos}">
+                        <td>
+                            <div class="fw-semibold" th:text="${c.nomeCompleto}">Maria da Silva</div>
+                            <div th:if="${c.observacaoSaude != null and !#strings.isEmpty(c.observacaoSaude)}"
+                                 class="small text-muted" th:text="${c.observacaoSaude}">Hipertensão</div>
+                        </td>
+                        <td class="small" th:text="${c.cpf}">000.000.000-00</td>
+                        <td class="small" th:text="${#temporals.format(c.dataNascimento, 'dd/MM/yyyy')}">10/05/1948</td>
+                        <td class="small" th:text="${c.telefone}">(19) 99999-0000</td>
+                        <td th:text="${c.bairro}">Centro</td>
+                        <td class="text-center">
+                            <span th:if="${c.mobilidadeReduzida}" class="badge bg-warning text-dark">
+                                <i class="bi bi-person-wheelchair me-1"></i>Prioritário
+                            </span>
+                            <span th:unless="${c.mobilidadeReduzida}" class="badge bg-light text-secondary border">
+                                Regular
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/cidadaos/editar/{id}(id=${c.id})}"
+                               class="btn btn-sm btn-outline-primary me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:href="@{/cidadaos/excluir/{id}(id=${c.id})}"
+                               class="btn btn-sm btn-outline-danger" title="Excluir"
+                               onclick="return confirm('Deseja realmente remover este cadastro?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

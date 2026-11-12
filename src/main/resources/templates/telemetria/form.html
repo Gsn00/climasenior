@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Nova Leitura Climática', ~{::section})}">
+<body>
+<section>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="fw-bold mb-0">Registrar Leitura de Sensor</h2>
+                <a th:href="@{/telemetria}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+
+            <div class="alert alert-info small mb-3">
+                <i class="bi bi-info-circle-fill me-1"></i>
+                Caso a <strong>sensação térmica</strong> não seja informada, o sistema calculará automaticamente com base na temperatura e umidade.
+                Índices críticos (<strong>&ge; 35°C</strong> ou umidade <strong>&le; 20%</strong>) disparam um alerta climático automático.
+            </div>
+
+            <div class="card">
+                <div class="card-body p-4">
+                    <form th:action="@{/telemetria/registrar}" th:object="${leitura}" method="post">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="pontoApoioId" class="form-label fw-semibold">Ponto de Apoio Monitorado *</label>
+                                <select id="pontoApoioId" th:field="*{pontoApoioId}" class="form-select"
+                                        th:classappend="${#fields.hasErrors('pontoApoioId')} ? 'is-invalid'">
+                                    <option value="">Selecione o local do sensor...</option>
+                                    <option th:each="p : ${pontosApoio}"
+                                            th:value="${p.id}"
+                                            th:text="${p.nome + ' - Bairro: ' + p.bairro}">
+                                        Ponto de Apoio
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:errors="*{pontoApoioId}">Selecione um ponto de apoio</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="temperatura" class="form-label fw-semibold">Temperatura (°C) *</label>
+                                <input type="number" step="0.1" id="temperatura" th:field="*{temperatura}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('temperatura')} ? 'is-invalid'"
+                                       placeholder="Ex: 34.5">
+                                <div class="invalid-feedback" th:errors="*{temperatura}">Erro na temperatura</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="umidade" class="form-label fw-semibold">Umidade Relativa (%) *</label>
+                                <input type="number" step="0.1" id="umidade" th:field="*{umidade}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('umidade')} ? 'is-invalid'"
+                                       placeholder="Ex: 28">
+                                <div class="invalid-feedback" th:errors="*{umidade}">Erro na umidade</div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="sensacaoTermica" class="form-label fw-semibold">Sensação Térmica (°C)</label>
+                                <input type="number" step="0.1" id="sensacaoTermica" th:field="*{sensacaoTermica}" class="form-control"
+                                       placeholder="Opcional (automático)">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="dataHoraRegistro" class="form-label fw-semibold">Data e Hora da Coleta</label>
+                                <input type="datetime-local" id="dataHoraRegistro" th:field="*{dataHoraRegistro}" class="form-control">
+                                <div class="form-text">Deixe em branco para registrar com a data/hora atual.</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a th:href="@{/telemetria}" class="btn btn-light">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-lg me-1"></i> Registrar Leitura
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

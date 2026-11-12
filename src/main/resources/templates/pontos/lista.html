@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Pontos de Apoio', ~{::section})}">
+<body>
+<section>
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">Pontos de Apoio Climático</h2>
+            <p class="text-muted mb-0">Locais climatizados, pontos de hidratação e unidades de acolhimento para idosos.</p>
+        </div>
+        <a th:href="@{/pontos/novo}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Novo Ponto de Apoio
+        </a>
+    </div>
+
+    <!-- Filtro por Bairro -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form th:action="@{/pontos}" method="get" class="row g-2 align-items-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="bairro" class="form-control"
+                               placeholder="Filtrar pontos ativos por bairro..."
+                               th:value="${bairroFiltro}">
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+                    <a th:if="${bairroFiltro != null}" th:href="@{/pontos}" class="btn btn-outline-secondary ms-1">Limpar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Pontos -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div th:if="${#lists.isEmpty(pontos)}" class="p-5 text-center text-muted">
+                <i class="bi bi-geo-alt fs-1 d-block mb-2"></i>
+                Nenhum ponto de apoio encontrado.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(pontos)}" class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Bairro</th>
+                        <th>Endereço</th>
+                        <th class="text-center">Capacidade</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="p : ${pontos}">
+                        <td class="fw-semibold" th:text="${p.nome}">UBS Central</td>
+                        <td>
+                            <span class="badge bg-info bg-opacity-10 text-primary border border-primary-subtle"
+                                  th:text="${p.tipo.descricao}">Tipo</span>
+                        </td>
+                        <td th:text="${p.bairro}">Centro</td>
+                        <td class="small text-muted" th:text="${p.endereco}">Rua Exemplo, 100</td>
+                        <td class="text-center">
+                            <span class="fw-semibold" th:text="${p.capacidadeMaxima}">50</span> pessoas
+                        </td>
+                        <td class="text-center">
+                            <span th:if="${p.ativo}" class="badge bg-success">Ativo</span>
+                            <span th:unless="${p.ativo}" class="badge bg-secondary">Inativo</span>
+                        </td>
+                        <td class="text-end">
+                            <a th:href="@{/pontos/editar/{id}(id=${p.id})}"
+                               class="btn btn-sm btn-outline-primary me-1" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:href="@{/pontos/excluir/{id}(id=${p.id})}"
+                               class="btn btn-sm btn-outline-danger" title="Excluir"
+                               onclick="return confirm('Deseja realmente excluir este ponto de apoio?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
