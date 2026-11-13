@@ -1,15 +1,15 @@
-#
-# Build stage
-#
-FROM maven:3.8.3-openjdk-17 AS build
-COPY . .
-RUN mvn clean install
+# Etapa 1: Build da aplicação com Maven e Java 21
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-#
-# Package stage
-#
-FROM eclipse-temurin:17-jdk
-COPY --from=build /target/your-build.jar demo.jar
-# ENV PORT=8080
+# Etapa 2: Execução leve com JRE 21
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","demo.jar"]
+
+# Limita a memória heap para caber nos 512 MB do plano gratuito do Render
+ENTRYPOINT ["java", "-Xmx384m", "-Xms128m", "-jar", "app.jar"]
